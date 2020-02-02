@@ -2,8 +2,6 @@ const fs = require("fs");
 const Discord = require("discord.js");
 const client = new Discord.Client();
 const config = require("./config.json");
-const server = require("./server.js");
-server.sendClient(client);
 const algebra = require("algebra.js");
 const http = require("http");
 const { exec } = require("child_process");
@@ -13,8 +11,6 @@ const gitDownload = require("download-git-repo");
 const validUrl = require("valid-url");
 
 const streamOptions = { seek: 0, volume: 1 };
-
-var serverToken = "thiswasasecretpassword";
 
 client.on("ready", () => {
   console.log(`Logged in as ${client.user.tag}!`);
@@ -30,7 +26,7 @@ function commandParser(_a) {
   var strOpen = false;
   var strChar = "";
   for (var i = 0; i < _a.length; i++) {
-    if (i == 0 && _a[i] == "~") {
+    if (i == 0 && _a[i] == "-") {
       _o.isCmd = true;
       continue;
     }
@@ -80,30 +76,6 @@ function playSong(vc, song) {
     const dispatcher = conn.playStream(stream, streamOptions);
     dispatcher.on("end", end => {
       vc.leave();
-    });
-  });
-}
-
-function speak(vc, text) {
-  var filename = `${__dirname}/recordings/speech-${new Date().getTime()}.wav`;
-  exec(`"${__dirname}/espeak/espeak" "${text}" -w "${filename}"`, err => {
-    if (err) {
-      console.log(err);
-      client.guilds
-        .get("584382438688555019")
-        .channels.get("593476194209366017")
-        .send(
-          "<@&590198302918836240> __**Error speaking**__\n" +
-            JSON.stringify(err)
-        );
-      return;
-    }
-
-    vc.join().then(conn => {
-      const dispatcher = conn.playFile(filename);
-      dispatcher.on("end", end => {
-        vc.leave();
-      });
     });
   });
 }
