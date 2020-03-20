@@ -26,7 +26,7 @@ function commandParser(_a) {
   var strOpen = false;
   var strChar = "";
   for (var i = 0; i < _a.length; i++) {
-    if (i == 0 && _a[i] == "-") {
+    if (i == 0 && _a[i] == "<") {
       _o.isCmd = true;
       continue;
     }
@@ -61,6 +61,17 @@ client.on("message", async msg => {
   var cp = commandParser(msg.content);
   if (cp.isCmd) {
     var cmd = cp.output;
+    if (cmd[0] == "emote" && cmd.length == 2) {
+      msg.channel.send(
+        client.emojis
+          .find(
+            x =>
+              x.name.toLowerCase().replace(/_/g, "").replace(/-/g, "") ==
+              cmd[1].toLowerCase().replace(/_/g, "").replace(/-/g, "")
+          )
+          .toString()
+      );
+    }
   } else {
     if(msg.content.trim().toLowerCase()=="hello") {
       msg.channel.send("Hello "+msg.member.displayName);
