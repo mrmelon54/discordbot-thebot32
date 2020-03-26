@@ -1,4 +1,4 @@
-require('dotenv').config()
+require("dotenv").config();
 const fs = require("fs");
 const Discord = require("discord.js");
 const client = new Discord.Client();
@@ -16,7 +16,51 @@ const streamOptions = { seek: 0, volume: 1 };
 client.on("ready", () => {
   console.log(`Logged in as ${client.user.tag}!`);
   updateStatus();
+  var g = client.guilds.resolve(mainserverguild);
+  if (g == undefined) return;
+  g.members.fetch().then(x => {
+    x.forEach(y =>
+      updateMemberNickname(y)
+    );
+  });
 });
+
+var mainserverguild = "665185910060613653";
+var rolesymbols = [
+  { symbol: "♔", id: 684873374022893579 },
+  { symbol: "♕", id: 684873801036464183 },
+  { symbol: "♖", id: 691745309268901938 },
+  { symbol: "♗", id: 665187167395512330 },
+  { symbol: "♘", id: 665266090019913729 },
+  { symbol: "♙", id: 690619454169546773 },
+  { symbol: "✾", id: 683727914134667337 },
+  { symbol: "★", id: 692286610229821460 },
+  { symbol: "☆", id: 683381997145686024 },
+  { symbol: "✦", id: 692286144775454740 },
+  { symbol: "◊", id: 692149252683595875 },
+  { symbol: "⇪", id: 683378603924521014 }
+];
+client.on("guildMemberUpdate", (o, n) => {updateMemberNickname(n)});
+
+function updateMemberNickname(n) {
+  if (n.guild.id.toString() === mainserverguild) {
+    if (n.user.bot) return;
+    var symbols = rolesymbols
+      .map(y => (n.roles.cache.some(x => x.id == y.id) ? y.symbol : null))
+      .filter(x => x != null)
+      .join(" ");
+    var name = n.displayName.replace(/[♔♕♖♗♘♙✾★☆✦◊⇪⊲⊳]/g, "").trim();
+    if (symbols == undefined) return;
+    if (name == undefined) return;
+    var uname = "⊲ " + symbols + " " + name + " ⊳";
+    console.log("Updated " + n.user.tag + " nickname to " + uname);
+    if (uname == n.nickname) return;
+    if (uname == undefined) return;
+    n.setNickname(uname)
+      .then(() => {})
+      .catch(() => {});
+  }
+}
 
 function commandParser(_a) {
   var _o = {
@@ -58,7 +102,7 @@ function updateStatus() {
 }
 
 client.on("message", async msg => {
-  if(msg.author.bot)return;
+  if (msg.author.bot) return;
   var cp = commandParser(msg.content);
   if (cp.isCmd) {
     var cmd = cp.output;
@@ -67,15 +111,21 @@ client.on("message", async msg => {
         client.emojis
           .find(
             x =>
-              x.name.toLowerCase().replace(/_/g, "").replace(/-/g, "") ==
-              cmd[1].toLowerCase().replace(/_/g, "").replace(/-/g, "")
+              x.name
+                .toLowerCase()
+                .replace(/_/g, "")
+                .replace(/-/g, "") ==
+              cmd[1]
+                .toLowerCase()
+                .replace(/_/g, "")
+                .replace(/-/g, "")
           )
           .toString()
       );
     }
   } else {
-    if(msg.content.trim().toLowerCase()=="hello") {
-      msg.channel.send("Hello "+msg.member.displayName);
+    if (msg.content.trim().toLowerCase() == "hello") {
+      msg.channel.send("Hello " + msg.member.displayName);
     }
   }
 });
