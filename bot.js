@@ -52,7 +52,7 @@ function updateMemberNickname(n) {
     var name = n.displayName.replace(/[♔♕♖♗♘♙✾★☆✦◊⇪⊲⊳]/g, "").trim();
     if (symbols == undefined) return;
     if (name == undefined) return;
-    var uname = "⊲ " + symbols + " " + name + " ⊳";
+    var uname = "⊲ " + symbols + (symbols==""?"":" ") + name + " ⊳";
     console.log("Updated " + n.user.tag + " nickname to " + uname);
     if (uname == n.nickname) return;
     if (uname == undefined) return;
