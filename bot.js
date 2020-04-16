@@ -1,17 +1,8 @@
 require("dotenv").config();
-const fs = require("fs");
 const Discord = require("discord.js");
 const client = new Discord.Client();
 const config = require("./config.json");
-const algebra = require("algebra.js");
-const http = require("http");
-const { exec } = require("child_process");
-const ytdl = require("ytdl-core");
-const glob = require("glob");
-const gitDownload = require("download-git-repo");
-const validUrl = require("valid-url");
 
-const streamOptions = { seek: 0, volume: 1 };
 
 client.on("ready", () => {
   console.log(`Logged in as ${client.user.tag}!`);
@@ -26,21 +17,58 @@ client.on("ready", () => {
 });
 
 var mainserverguild = "665185910060613653";
-var rolesymbols = [
-  { symbol: "♔", id: 684873374022893579 },
-  { symbol: "♕", id: 684873801036464183 },
-  { symbol: "♖", id: 691745309268901938 },
-  { symbol: "♗", id: 665187167395512330 },
-  { symbol: "♘", id: 665266090019913729 },
-  { symbol: "♙", id: 690619454169546773 },
-  { symbol: "✾", id: 683727914134667337 },
-  { symbol: "★", id: 692286610229821460 },
-  { symbol: "☆", id: 683381997145686024 },
-  { symbol: "✦", id: 692286144775454740 },
-  { symbol: "◊", id: 692149252683595875 },
-  { symbol: "⇪", id: 683378603924521014 }
+var rolesymbols = [{
+    symbol: "♔",
+    id: 684873374022893579
+  },
+  {
+    symbol: "♕",
+    id: 684873801036464183
+  },
+  {
+    symbol: "♖",
+    id: 691745309268901938
+  },
+  {
+    symbol: "♗",
+    id: 665187167395512330
+  },
+  {
+    symbol: "♘",
+    id: 665266090019913729
+  },
+  {
+    symbol: "♙",
+    id: 690619454169546773
+  },
+  {
+    symbol: "✾",
+    id: 683727914134667337
+  },
+  {
+    symbol: "★",
+    id: 692286610229821460
+  },
+  {
+    symbol: "☆",
+    id: 683381997145686024
+  },
+  {
+    symbol: "✦",
+    id: 692286144775454740
+  },
+  {
+    symbol: "◊",
+    id: 692149252683595875
+  },
+  {
+    symbol: "⇪",
+    id: 683378603924521014
+  }
 ];
-client.on("guildMemberUpdate", (o, n) => {updateMemberNickname(n)});
+client.on("guildMemberUpdate", (o, n) => {
+  updateMemberNickname(n)
+});
 
 function updateMemberNickname(n) {
   if (n.guild.id.toString() === mainserverguild) {
@@ -52,7 +80,7 @@ function updateMemberNickname(n) {
     var name = n.displayName.replace(/[♔♕♖♗♘♙✾★☆✦◊⇪⊲⊳]/g, "").trim();
     if (symbols == undefined) return;
     if (name == undefined) return;
-    var uname = "⊲ " + symbols + (symbols==""?"":" ") + name + " ⊳";
+    var uname = "⊲ " + symbols + (symbols == "" ? "" : " ") + name + " ⊳";
     console.log("Updated " + n.user.tag + " nickname to " + uname);
     if (uname == n.nickname) return;
     if (uname == undefined) return;
@@ -102,6 +130,32 @@ function updateStatus() {
 }
 
 client.on("message", async msg => {
+  for (var i = 0; i < config.MessageForward.length; i++) {
+    if (config.MessageForward[i].input == msg.channel.id.toString()) {
+      for (var j = 0; j < config.MessageForward[i].output.length; j++) {
+        var a = config.MessageForward[i].output[j].split("->");
+        var b = client.guilds.resolve(a[0]);
+        if (b != undefined) {
+          var c = b.channels.resolve(a[1]);
+          if (c != undefined) {
+            c.createWebhook(msg.author.username, {
+                avatar: msg.author.displayAvatarURL(),
+                reason: 'Automated messaging'
+              }).then(webhook => {
+                webhook.send(msg.content).then(()=>{
+                  webhook.delete().then(()=>{}).catch(console.error);
+                }).catch(err=>{
+                  webhook.delete().then(()=>{}).catch(console.error);
+                  console.error(err)
+                })
+              })
+              .catch(console.error)
+          }
+        }
+      }
+      return;
+    }
+  }
   if (msg.author.bot) return;
   var cp = commandParser(msg.content);
   if (cp.isCmd) {
@@ -109,18 +163,18 @@ client.on("message", async msg => {
     if (cmd[0] == "emote" && cmd.length == 2) {
       msg.channel.send(
         client.emojis
-          .find(
-            x =>
-              x.name
-                .toLowerCase()
-                .replace(/_/g, "")
-                .replace(/-/g, "") ==
-              cmd[1]
-                .toLowerCase()
-                .replace(/_/g, "")
-                .replace(/-/g, "")
-          )
-          .toString()
+        .find(
+          x =>
+          x.name
+          .toLowerCase()
+          .replace(/_/g, "")
+          .replace(/-/g, "") ==
+          cmd[1]
+          .toLowerCase()
+          .replace(/_/g, "")
+          .replace(/-/g, "")
+        )
+        .toString()
       );
     }
   } else {
@@ -130,29 +184,18 @@ client.on("message", async msg => {
   }
 });
 
-function playSong(vc, song) {
-  vc.join().then(conn => {
-    const stream = ytdl(`https://www.youtube.com/watch?v=${song}`, {
-      filter: "audioonly"
-    });
-    const dispatcher = conn.playStream(stream, streamOptions);
-    dispatcher.on("end", end => {
-      vc.leave();
-    });
-  });
-}
 
 client.on("error", err =>
   client.guilds
-    .get("584382438688555019")
-    .channels.get("593476194209366017")
-    .send("<@&590198302918836240> __**Error**__\n" + JSON.stringify(err))
+  .get("584382438688555019")
+  .channels.get("593476194209366017")
+  .send("<@&590198302918836240> __**Error**__\n" + JSON.stringify(err))
 );
 client.on("warn", err =>
   client.guilds
-    .get("584382438688555019")
-    .channels.get("593476194209366017")
-    .send("<@&590198302918836240> __**Warn**__\n" + JSON.stringify(err))
+  .get("584382438688555019")
+  .channels.get("593476194209366017")
+  .send("<@&590198302918836240> __**Warn**__\n" + JSON.stringify(err))
 );
 
 client.login(process.env.TOKEN);
