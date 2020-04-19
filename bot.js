@@ -77,6 +77,7 @@ function updateMemberNickname(n) {
       .map(y => (n.roles.cache.some(x => x.id == y.id) ? y.symbol : null))
       .filter(x => x != null)
       .join(" ");
+    if(symbols.length>1)symbols=symbols.split(" ")[0];
     var name = n.displayName.replace(/[♔♕♖♗♘♙✾★☆✦◊⇪⊲⊳]/g, "").trim();
     if (symbols == undefined) return;
     if (name == undefined) return;
