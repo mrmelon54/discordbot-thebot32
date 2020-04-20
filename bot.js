@@ -64,6 +64,10 @@ var rolesymbols = [{
   {
     symbol: "⇪",
     id: 683378603924521014
+  },
+  {
+    symbol: "❂",
+    id: 701725803356094464
   }
 ];
 client.on("guildMemberUpdate", (o, n) => {
