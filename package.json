@@ -16,8 +16,10 @@
   "author": "MrMelon",
   "license": "MIT",
   "dependencies": {
+    "@discordjs/opus": "^0.3.2",
     "@types/snekfetch": "^4.0.2",
     "algebra.js": "^0.2.6",
+    "bufferutil": "^4.0.1",
     "discord.js": "^12.0.2",
     "dotenv": "^8.2.0",
     "download-git-repo": "^2.0.0",
@@ -32,6 +34,7 @@
     "request": "^2.88.0",
     "say": "^0.15.0",
     "snekfetch": "^4.0.4",
+    "utf-8-validate": "^5.0.2",
     "valid-url": "^1.0.9",
     "ytdl-core": "^1.0.1"
   }
